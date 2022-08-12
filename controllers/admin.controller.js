@@ -12,7 +12,7 @@ module.exports = {
         const validPass = await bcrypt.compare(req.body.password, admin.password);
         if (!validPass) return res.send({ status: false, message: 're-enter your data' })
         jwt.sign({ admin }, 'secretkey', (err, token) => {
-            res.json({ status: true, id: admin.id, token: token, role: admin.role });
+            res.json({ status: true, id: admin.id,email:admin.email, token: token });
         });
     },
 
@@ -40,7 +40,7 @@ module.exports = {
     
      //** SUPPRESSION D'UN ADMIN **/
      supprimerAdmin: (req,res)=>{
-        admin.findOneAndRemove({_id:req.params.id},(err,list)=>{
+        Admin.findOneAndRemove({_id:req.params.id},(err,list)=>{
           if(err){
               res.json({state : 'no', msg :'error'+err})
           }else{
@@ -48,4 +48,45 @@ module.exports = {
           }
       })  
     },
+    
+    UpdateAdmin: function (req, res) {
+        Admin.updateOne(
+            {
+                _id: req.params.id
+            }, {
+            $set: req.body
+        },
+            {
+                nom: req.body.nom,
+                prenom: req.body.prenom,
+                email: req.body.email,
+                password: req.body.password,
+
+
+
+
+            },
+            function (err, list) {
+                if (err) {
+                    res.json({ state: 'no', msg: 'error' + err })
+                } else {
+                    res.json({ state: 'ok', msg: 'done' })
+                }
+            }
+        )
+    },
+    getbyid: (req, res) => {
+        Admin.findOne({ _id: req.params.id }, (err, list) => {
+            if (err) {
+                res.json({ state: 'no', msg: 'error' + err })
+            } else {
+                res.json(list)
+            }
+        })
+    },
+
+    Logout: async (req, res) => {        
+        res.json({ status: false, id: '', token: '' });
+    },
+
 }
